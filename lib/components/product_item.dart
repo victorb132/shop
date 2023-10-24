@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/exceptions/shop_exception.dart';
 import 'package:shop/models/product.dart';
 import 'package:shop/models/product_list.dart';
 import 'package:shop/utils/app_routes.dart';
@@ -11,6 +12,8 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final msg = ScaffoldMessenger.of(context);
+
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: NetworkImage(product.imageUrl),
@@ -52,15 +55,24 @@ class ProductItem extends StatelessWidget {
                       ),
                     ],
                   ),
-                ).then((value) => {
-                      if (value ?? false)
-                        Provider.of<ProductList>(
-                          context,
-                          listen: false,
-                        ).removeProduct(
-                          product,
-                        )
-                    });
+                ).then((value) async {
+                  if (value ?? false) {
+                    try {
+                      await Provider.of<ProductList>(
+                        context,
+                        listen: false,
+                      ).removeProduct(
+                        product,
+                      );
+                    } on ShopException catch (error) {
+                      msg.showSnackBar(
+                        SnackBar(
+                          content: Text(error.toString()),
+                        ),
+                      );
+                    }
+                  }
+                });
               },
               icon: const Icon(Icons.delete),
               color: Theme.of(context).colorScheme.error,
