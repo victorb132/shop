@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/models/auth.dart';
+import 'package:shop/models/auth_or_home_screen.dart';
 import 'package:shop/models/cart.dart';
 import 'package:shop/models/order_list.dart';
 import 'package:shop/models/orders_screen.dart';
 import 'package:shop/screens/cart_screen.dart';
 import 'package:shop/screens/product_detail_screen.dart';
 import 'package:shop/screens/product_form_screen.dart';
-import 'package:shop/screens/product_overview_screen.dart';
 import 'package:shop/screens/products_screen.dart';
 import 'package:shop/utils/app_routes.dart';
 
@@ -24,13 +25,28 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ProductList(),
+          create: (_) => Auth(),
         ),
+        ChangeNotifierProxyProvider<Auth, ProductList>(
+            create: (_) => ProductList(),
+            update: (ctx, auth, previous) {
+              return ProductList(
+                auth.token ?? '',
+                previous?.items ?? [],
+                auth.userId ?? '',
+              );
+            }),
+        ChangeNotifierProxyProvider<Auth, OrderList>(
+            create: (_) => OrderList(),
+            update: (ctx, auth, previous) {
+              return OrderList(
+                auth.token ?? '',
+                auth.userId ?? '',
+                previous?.items ?? [],
+              );
+            }),
         ChangeNotifierProvider(
           create: (_) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => OrderList(),
         ),
       ],
       child: MaterialApp(
@@ -41,7 +57,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Lato',
         ),
         routes: {
-          AppRoutes.home: (ctx) => const ProductOverviewScreen(),
+          AppRoutes.authOrHome: (ctx) => const AuthOrHomeScreen(),
           AppRoutes.productDetails: (ctx) => const ProductDetailScreen(),
           AppRoutes.cart: (ctx) => const CartScreen(),
           AppRoutes.orders: (ctx) => const OrdersScreen(),
