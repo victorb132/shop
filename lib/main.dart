@@ -10,6 +10,7 @@ import 'package:shop/screens/product_detail_screen.dart';
 import 'package:shop/screens/product_form_screen.dart';
 import 'package:shop/screens/products_screen.dart';
 import 'package:shop/utils/app_routes.dart';
+import 'package:shop/utils/custom_routes.dart';
 
 import 'models/product_list.dart';
 
@@ -55,6 +56,12 @@ class MyApp extends StatelessWidget {
           hintColor: Colors.deepOrange,
           useMaterial3: true,
           fontFamily: 'Lato',
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: {
+              TargetPlatform.iOS: CustomPageTransitionBuilder(),
+              TargetPlatform.android: CustomPageTransitionBuilder(),
+            },
+          ),
         ),
         routes: {
           AppRoutes.authOrHome: (ctx) => const AuthOrHomeScreen(),
